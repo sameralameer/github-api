@@ -258,6 +258,27 @@ public class GHPullRequest extends GHIssue {
             }
         };
     }
+    
+    /**
+     * Retrieves all the reviews associated to this pull request.
+     */
+    public PagedIterable<GHPullRequestReview> listReviews() {
+    	
+    	System.out.println();
+        return new PagedIterable<GHPullRequestReview>() {
+            public PagedIterator<GHPullRequestReview> _iterator(int pageSize) {
+                return new PagedIterator<GHPullRequestReview>(root.retrieve().asIterator(
+                        String.format("%s/reviews", getApiRoute()),
+                        GHPullRequestReview[].class, pageSize)) {
+                    @Override
+                    protected void wrapUp(GHPullRequestReview[] page) {
+                        for (GHPullRequestReview c : page)
+                            c.wrapUp(GHPullRequest.this);
+                    }
+                };
+            }
+        };
+    }
 
     public GHPullRequestReviewComment createReviewComment(String body, String sha, String path, int position) throws IOException {
         return new Requester(root).method("POST")
